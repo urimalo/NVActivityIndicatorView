@@ -210,6 +210,13 @@ public final class NVActivityIndicatorPresenter {
 
         return label
     }()
+    
+    private var activityIndicatorView: NVActivityIndicatorView = {
+        let activityIndicatorView = NVActivityIndicatorView()
+        activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
+        
+        return activityIndicatorView
+    }()
 
     fileprivate var state: State = .stopped
     fileprivate var data: ActivityData? // Shared activity data across states
@@ -233,7 +240,7 @@ public final class NVActivityIndicatorPresenter {
      - parameter data: Information package used to display UI blocker.
      - parameter fadeInAnimation: Fade in animation.
      */
-    public final func startAnimating(_ data: ActivityData, _ fadeInAnimation: FadeInAnimation? = nil) {
+    public final func startAnimating(_ data: ActivityData = ActivityData(), _ fadeInAnimation: FadeInAnimation? = nil) {
         self.data = data
         state.startAnimating(presenter: self, fadeInAnimation)
     }
@@ -255,25 +262,20 @@ public final class NVActivityIndicatorPresenter {
             self.messageLabel.text = message
         }
     }
+    
 
     // MARK: - Helpers
 
     fileprivate func show(with activityData: ActivityData, _ fadeInAnimation: FadeInAnimation?) {
         let containerView = UIView(frame: UIScreen.main.bounds)
 
-        containerView.backgroundColor = activityData.backgroundColor
+        containerView.backgroundColor = nil
         containerView.restorationIdentifier = restorationIdentifier
         containerView.translatesAutoresizingMaskIntoConstraints = false
+        containerView.isUserInteractionEnabled = false
         fadeInAnimation?(containerView)
 
-        let activityIndicatorView = NVActivityIndicatorView(
-            frame: CGRect(x: 0, y: 0, width: activityData.size.width, height: activityData.size.height),
-            type: activityData.type,
-            color: activityData.color,
-            padding: activityData.padding)
-
         activityIndicatorView.startAnimating()
-        activityIndicatorView.translatesAutoresizingMaskIntoConstraints = false
         containerView.addSubview(activityIndicatorView)
 
         // Add constraints for `activityIndicatorView`.

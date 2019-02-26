@@ -444,6 +444,24 @@ public final class NVActivityIndicatorView: UIView {
 
     /// Current status of animation, read-only.
     private(set) public var isAnimating: Bool = false
+    
+    
+    private var imageView: UIImageView = {
+        var images: [UIImage] = []
+        for count in 1...40
+        {
+            let fileName = "loading_view\(String(format: "%04d", count)).png"
+            if let image  = UIImage(named:fileName) {
+                images.append(image)
+            }
+        }
+        
+        let imgView = UIImageView.init()
+        imgView.animationImages = images
+        imgView.animationDuration = 1.3
+        
+        return imgView
+    }()
 
     /**
      Returns an object initialized from data in a given unarchiver.
@@ -476,6 +494,14 @@ public final class NVActivityIndicatorView: UIView {
         self.color = color ?? NVActivityIndicatorView.DEFAULT_COLOR
         self.padding = padding ?? NVActivityIndicatorView.DEFAULT_PADDING
         super.init(frame: frame)
+        isHidden = true
+    }
+    
+    public init() {
+        self.type = NVActivityIndicatorView.DEFAULT_TYPE
+        self.color = NVActivityIndicatorView.DEFAULT_COLOR
+        self.padding = NVActivityIndicatorView.DEFAULT_PADDING
+        super.init(frame: CGRect(x: 0, y: 0, width: 0, height: 0))
         isHidden = true
     }
 
@@ -512,7 +538,15 @@ public final class NVActivityIndicatorView: UIView {
         isHidden = false
         isAnimating = true
         layer.speed = 1
-        setUpAnimation()
+        
+        if let img = imageView.animationImages?[0] {
+            let screenSize = self.frame.size
+            let imgSize = img.size
+            imageView.frame = CGRect.init(x: (screenSize.width / 2) - (imgSize.width / 2), y: (screenSize.height / 2) - (imgSize.height / 2), width: imgSize.width, height: imgSize.height)
+        }
+        
+        imageView.startAnimating()
+        self.addSubview(imageView)
     }
 
     /**
@@ -524,7 +558,9 @@ public final class NVActivityIndicatorView: UIView {
         }
         isHidden = true
         isAnimating = false
-        layer.sublayers?.removeAll()
+        
+        imageView.removeFromSuperview()
+        imageView.stopAnimating()        
     }
 
     // MARK: Internal
